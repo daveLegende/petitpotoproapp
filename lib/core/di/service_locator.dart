@@ -5,7 +5,10 @@ import 'package:petitpotopro/core/storage/secure_storage.dart';
 import 'package:petitpotopro/features/auth/auth_module.dart';
 import 'package:petitpotopro/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:petitpotopro/features/auth/presentation/bloc/auth_event.dart';
+import 'package:petitpotopro/features/coupons/coupons_module.dart';
 import 'package:petitpotopro/features/matchs/match_module.dart';
+import 'package:petitpotopro/features/poule/poule_module.dart';
+import 'package:petitpotopro/features/tickets/tickets_module.dart';
 import 'package:petitpotopro/features/tournoi/tournoi_module.dart';
 
 final sl = GetIt.instance;
@@ -26,4 +29,7 @@ Future<void> initializeDependencies() async {
   registerAuthModule(sl);
   registerTournoiModule(sl);
   registerMatchModule(sl);
+  registerPouleModule(sl);
+  registerTicketsModule(sl);
+  registerCouponsModule(sl);
 }

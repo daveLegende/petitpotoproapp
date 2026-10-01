@@ -48,6 +48,9 @@ void main() {
       ],
       'isProlongation': false,
       'isTirAuxButs': false,
+      'arbitres': [
+        {'id': 'ref-1', 'nom de la Arbitre': 'Afi Mensah'},
+      ],
     });
 
     expect(match.home, isA<TeamEntity>());
@@ -61,5 +64,6 @@ void main() {
     expect(match.bets.single, isA<BetEntity>());
     expect(match.bets.single.category, 'MATCH_RESULT');
     expect(match.bets.single.odds['V1'], 1.85);
+    expect(match.referee, 'Afi Mensah');
   });
 }

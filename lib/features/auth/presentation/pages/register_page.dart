@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:petitpotopro/common/helpers/style.dart';
 import 'package:petitpotopro/core/configs/theme/app_colors.dart';
 import 'package:petitpotopro/core/di/service_locator.dart';
 import 'package:petitpotopro/features/auth/presentation/bloc/auth_bloc.dart';
@@ -8,6 +9,7 @@ import 'package:petitpotopro/features/auth/presentation/bloc/auth_event.dart';
 import 'package:petitpotopro/features/auth/presentation/cubit/register_cubit.dart';
 import 'package:petitpotopro/features/auth/presentation/cubit/register_state.dart';
 import 'package:petitpotopro/features/auth/presentation/pages/login_page.dart';
+import 'package:petitpotopro/features/auth/presentation/widgets/auth_ui.dart';
 import 'package:petitpotopro/features/auth/presentation/widgets/register_contact_step.dart';
 import 'package:petitpotopro/features/auth/presentation/widgets/register_form_step.dart';
 import 'package:petitpotopro/features/auth/presentation/widgets/register_otp_step.dart';
@@ -33,7 +35,13 @@ class _RegisterView extends StatelessWidget {
   void _snack(BuildContext context, String message, Color color) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message), backgroundColor: color));
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text(message),
+          backgroundColor: color,
+        ),
+      );
   }
 
   void _onState(BuildContext context, RegisterState state) {
@@ -55,11 +63,23 @@ class _RegisterView extends StatelessWidget {
   }
 
   Widget _stepFor(RegisterStep step) => switch (step) {
-        RegisterStep.contact =>
-          const RegisterContactStep(key: ValueKey('contact')),
-        RegisterStep.otp => const RegisterOtpStep(key: ValueKey('otp')),
-        RegisterStep.form => const RegisterFormStep(key: ValueKey('form')),
-      };
+    RegisterStep.contact => const RegisterContactStep(key: ValueKey('contact')),
+    RegisterStep.otp => const RegisterOtpStep(key: ValueKey('otp')),
+    RegisterStep.form => const RegisterFormStep(key: ValueKey('form')),
+  };
+
+  /// Retour : étape "code" → "contact" ; "contact" → quitte l'écran ;
+  /// "formulaire" → pas de retour (le contact est déjà vérifié).
+  VoidCallback? _onBack(BuildContext context, RegisterStep step) {
+    switch (step) {
+      case RegisterStep.otp:
+        return () => context.read<RegisterCubit>().backToContact();
+      case RegisterStep.contact:
+        return context.canPop() ? () => context.pop() : null;
+      case RegisterStep.form:
+        return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,19 +103,27 @@ class _RegisterView extends StatelessWidget {
             body: SafeArea(
               child: Column(
                 children: [
-                  LinearProgressIndicator(
-                    value: (state.step.index + 1) / RegisterStep.values.length,
-                    color: AppColors.primary,
-                    backgroundColor: AppColors.lightBackground,
+                  _TopBar(
+                    current: state.step.index,
+                    total: RegisterStep.values.length,
+                    onBack: _onBack(context, state.step),
                   ),
                   Expanded(
-                    child: SingleChildScrollView(
-                      keyboardDismissBehavior:
-                          ScrollViewKeyboardDismissBehavior.onDrag,
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 250),
-                        child: _stepFor(state.step),
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxWidth: kAuthMaxWidth,
+                        ),
+                        child: SingleChildScrollView(
+                          keyboardDismissBehavior:
+                              ScrollViewKeyboardDismissBehavior.onDrag,
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 250),
+                            child: _stepFor(state.step),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -104,6 +132,60 @@ class _RegisterView extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Barre du haut : bouton retour, segments de progression et « 1/3 ».
+class _TopBar extends StatelessWidget {
+  const _TopBar({required this.current, required this.total, this.onBack});
+
+  final int current;
+  final int total;
+  final VoidCallback? onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 8, 24, 0),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 48,
+            height: 48,
+            child: onBack == null
+                ? null
+                : IconButton(
+                    tooltip: 'Retour',
+                    icon: const Icon(Icons.arrow_back_rounded),
+                    onPressed: onBack,
+                  ),
+          ),
+          Expanded(
+            child: Row(
+              children: [
+                for (var i = 0; i < total; i++) ...[
+                  Expanded(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: i <= current
+                            ? AppColors.primary
+                            : AppColors.primary.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  if (i < total - 1) const SizedBox(width: 6),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Text('${current + 1}/$total', style: StyleText().caption),
+        ],
       ),
     );
   }

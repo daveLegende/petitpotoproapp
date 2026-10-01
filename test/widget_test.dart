@@ -7,23 +7,40 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:petitpotopro/app.dart';
+import 'package:petitpotopro/common/helpers/style.dart';
+import 'package:petitpotopro/core/configs/theme/app_theme.dart';
+import 'package:petitpotopro/core/widgets/auth_required_view.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const PetitpotoApp());
+  test('AppTheme maps text roles to StyleText', () {
+    final lightBody = AppTheme.lightTheme.textTheme.bodyMedium!;
+    final expectedLightBody = StyleText().body;
+    expect(lightBody.fontFamily, expectedLightBody.fontFamily);
+    expect(lightBody.fontSize, expectedLightBody.fontSize);
+    expect(lightBody.color, expectedLightBody.color);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    final darkTitle = AppTheme.darkTheme.textTheme.titleLarge!;
+    final expectedDarkTitle = StyleText(isDark: true).title;
+    expect(darkTitle.fontFamily, expectedDarkTitle.fontFamily);
+    expect(darkTitle.fontSize, expectedDarkTitle.fontSize);
+    expect(darkTitle.color, expectedDarkTitle.color);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('AuthRequiredView ouvre la connexion', (tester) async {
+    var didRequestSignIn = false;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: AuthRequiredView(
+            message: 'Connectez-vous pour continuer.',
+            onSignIn: () => didRequestSignIn = true,
+          ),
+        ),
+      ),
+    );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Connectez-vous pour continuer.'), findsOneWidget);
+    await tester.tap(find.text('Se connecter'));
+    expect(didRequestSignIn, isTrue);
   });
 }

@@ -2,18 +2,17 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:petitpotopro/common/helpers/style.dart';
 import 'package:petitpotopro/core/configs/theme/app_colors.dart';
 
-import 'constant.dart';
-
 class Helpers {
-
   // format
   String formatMontant(double montant) {
-    var somme =
-        NumberFormat.currency(locale: 'fr-fr', decimalDigits: 0, name: 'cfa')
-            .format(montant)
-            .toString();
+    var somme = NumberFormat.currency(
+      locale: 'fr-fr',
+      decimalDigits: 0,
+      name: 'cfa',
+    ).format(montant).toString();
     return somme.trim();
   }
 
@@ -43,14 +42,16 @@ class Helpers {
   }
 
   String dateEcole(DateTime dateTime) {
-    String formattedDate =
-        DateFormat('EEEE dd MMMM yyyy', 'fr_FR').format(dateTime);
+    String formattedDate = DateFormat(
+      'EEEE dd MMMM yyyy',
+      'fr_FR',
+    ).format(dateTime);
     return formattedDate[0].toUpperCase() + formattedDate.substring(1);
   }
 
   String birthDate(DateTime dateTime) {
-    String formattedDate =
-        DateFormat("yyyy-MM-ddTHH:mm:ss.SSSZ").format(dateTime);
+    String formattedDate = DateFormat("yyyy-MM-ddTHH:mm:ss.SSSZ")
+        .format(dateTime);
     return formattedDate;
   }
 
@@ -87,10 +88,7 @@ class Helpers {
     Color color = AppColors.primary,
   }) {
     var snackbar = SnackBar(
-      content: Text(
-        message,
-        style: const TextStyle(color: mwhite),
-      ),
+      content: Text(message, style: StyleText().bodyWhite),
       duration: const Duration(seconds: 2),
       behavior: SnackBarBehavior.floating,
       backgroundColor: color,

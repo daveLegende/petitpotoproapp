@@ -20,6 +20,7 @@ class MatchModel extends MatchEntity {
     required super.homePenalty,
     required super.awayPenalty,
     super.teamQualify,
+    super.referee,
   });
 
   factory MatchModel.fromJson(Map<String, dynamic> json) {
@@ -46,7 +47,43 @@ class MatchModel extends MatchEntity {
       homePenalty: _intValue(json['homePenalty'], 'homePenalty', fallback: 0),
       awayPenalty: _intValue(json['awayPenalty'], 'awayPenalty', fallback: 0),
       teamQualify: json['teamQualify'] as String?,
+      referee:
+          _readReferee(json['referee']) ??
+          _readPopulatedReferee(json['arbitre'] ?? json['arbitres']),
     );
+  }
+
+  static String? _readReferee(dynamic value) {
+    if (value is String && value.trim().isNotEmpty) return value.trim();
+    return _readPopulatedReferee(value);
+  }
+
+  static String? _readPopulatedReferee(dynamic value) {
+    if (value is List) {
+      final names = value
+          .map(_readPopulatedReferee)
+          .whereType<String>()
+          .toList(growable: false);
+      return names.isEmpty ? null : names.join(', ');
+    }
+    if (value is Map) {
+      final json = _asMap(value)!;
+      final first = json['firstname'] ?? json['firstName'];
+      final last = json['lastname'] ?? json['lastName'];
+      if (first is String && last is String) return '$first $last';
+      for (final key in [
+        'nom de la Arbitre',
+        'nomDeLaArbitre',
+        'name',
+        'nom',
+        'fullName',
+      ]) {
+        final name = json[key];
+        if (name is String && name.trim().isNotEmpty) return name.trim();
+      }
+      return null;
+    }
+    return null;
   }
 
   static Map<String, dynamic>? _asMap(dynamic value) =>

@@ -20,6 +20,7 @@ class MatchEntity extends Equatable {
     required this.homePenalty,
     required this.awayPenalty,
     this.teamQualify,
+    this.referee,
   });
 
   final String id;
@@ -37,6 +38,7 @@ class MatchEntity extends Equatable {
   final int homePenalty;
   final int awayPenalty;
   final String? teamQualify;
+  final String? referee;
 
   @override
   List<Object?> get props => [
@@ -55,5 +57,6 @@ class MatchEntity extends Equatable {
     homePenalty,
     awayPenalty,
     teamQualify,
+    referee,
   ];
 }

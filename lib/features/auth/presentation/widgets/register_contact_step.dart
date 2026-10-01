@@ -4,13 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:petitpotopro/common/helpers/style.dart';
 import 'package:petitpotopro/common/widgets/button/button.dart';
 import 'package:petitpotopro/common/widgets/fields/textfiel.dart';
-import 'package:petitpotopro/core/configs/theme/app_colors.dart';
 import 'package:petitpotopro/core/enum/login.dart';
 import 'package:petitpotopro/core/utils/validators.dart';
 import 'package:petitpotopro/features/auth/domain/entities/otp_contact.dart';
 import 'package:petitpotopro/features/auth/presentation/cubit/register_cubit.dart';
 import 'package:petitpotopro/features/auth/presentation/cubit/register_state.dart';
 import 'package:petitpotopro/features/auth/presentation/pages/login_page.dart';
+import 'package:petitpotopro/features/auth/presentation/widgets/auth_ui.dart';
 
 /// Étape 1 : saisie du téléphone ou de l'email, puis envoi du code.
 class RegisterContactStep extends StatefulWidget {
@@ -55,10 +55,10 @@ class _RegisterContactStepState extends State<RegisterContactStep> {
     setState(() => _error = null);
     FocusScope.of(context).unfocus();
     context.read<RegisterCubit>().sendCode(
-          isPhone
-              ? OtpContact.phone(Validators.normalizePhone(raw))
-              : OtpContact.email(raw),
-        );
+      isPhone
+          ? OtpContact.phone(Validators.normalizePhone(raw))
+          : OtpContact.email(raw),
+    );
   }
 
   @override
@@ -69,15 +69,15 @@ class _RegisterContactStepState extends State<RegisterContactStep> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 32),
-        Text('Créer un compte', style: style.title),
-        const SizedBox(height: 8),
-        Text(
-          'Nous allons vous envoyer un code pour vérifier votre '
-          '${isPhone ? 'numéro de téléphone' : 'adresse email'}.',
-          style: style.desc,
-        ),
         const SizedBox(height: 24),
+        AuthHeader(
+          icon: Icons.person_add_alt_1_rounded,
+          title: 'Créer un compte',
+          subtitle:
+              'Nous allons vous envoyer un code pour vérifier votre '
+              '${isPhone ? 'numéro de téléphone' : 'adresse email'}.',
+        ),
+        const SizedBox(height: 28),
         SizedBox(
           width: double.infinity,
           child: SegmentedButton<LoginMode>(
@@ -106,16 +106,19 @@ class _RegisterContactStepState extends State<RegisterContactStep> {
         CustomTextField(
           controller: _input,
           hintText: isPhone ? 'Téléphone (avec indicatif)' : 'Adresse email',
-          keyboardType:
-              isPhone ? TextInputType.phone : TextInputType.emailAddress,
+          keyboardType: isPhone
+              ? TextInputType.phone
+              : TextInputType.emailAddress,
           prefixIcon: Icon(
             isPhone ? Icons.phone_outlined : Icons.email_outlined,
           ),
         ),
-        if (_error != null) ...[
-          const SizedBox(height: 12),
-          Text(_error!, style: style.caption.copyWith(color: AppColors.error)),
-        ],
+        if (isPhone)
+          Padding(
+            padding: const EdgeInsets.only(top: 8, left: 4),
+            child: Text('Exemple : +228 90 12 34 56', style: style.caption),
+          ),
+        AuthErrorBanner(message: _error),
         const SizedBox(height: 24),
         BlocSelector<RegisterCubit, RegisterState, bool>(
           selector: (state) => state.isLoading,
@@ -123,13 +126,13 @@ class _RegisterContactStepState extends State<RegisterContactStep> {
               ? const LoadingButton()
               : CustomButton(text: 'Recevoir le code', onPressed: _submit),
         ),
-        const SizedBox(height: 16),
-        Center(
-          child: TextButton(
-            onPressed: () => context.go(LoginPage.route),
-            child: Text('Déjà un compte ? Se connecter', style: style.link),
-          ),
+        const SizedBox(height: 24),
+        AuthLinkRow(
+          text: 'Déjà un compte ?',
+          action: 'Se connecter',
+          onTap: () => context.go(LoginPage.route),
         ),
+        const SizedBox(height: 24),
       ],
     );
   }

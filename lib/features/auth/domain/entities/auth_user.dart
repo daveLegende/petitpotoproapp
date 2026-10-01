@@ -8,6 +8,7 @@ class AuthUser extends Equatable {
     this.email,
     this.phone,
     this.avatar,
+    this.balance,
   });
 
   final String id;
@@ -16,9 +17,18 @@ class AuthUser extends Equatable {
   final String? email;
   final String? phone;
   final String? avatar;
+  final num? balance;
 
   String get fullName => '$firstname $lastname'.trim();
 
   @override
-  List<Object?> get props => [id, firstname, lastname, email, phone, avatar];
+  List<Object?> get props => [
+    id,
+    firstname,
+    lastname,
+    email,
+    phone,
+    avatar,
+    balance,
+  ];
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:petitpotopro/common/helpers/style.dart';
 import 'package:petitpotopro/core/configs/theme/app_colors.dart';
-
 
 class AppTheme {
   // ═══════════════════════════════════════════════
@@ -13,6 +13,7 @@ class AppTheme {
     brightness: Brightness.light,
 
     fontFamily: 'ABeeZee',
+    textTheme: StyleText().materialTextTheme,
 
     primaryColor: AppColors.primary,
 
@@ -38,7 +39,6 @@ class AppTheme {
     // ─────────────────────────────────────────────
     // AppBar
     // ─────────────────────────────────────────────
-
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.white,
       foregroundColor: AppColors.neutral,
@@ -49,15 +49,11 @@ class AppTheme {
     // ─────────────────────────────────────────────
     // Icons
     // ─────────────────────────────────────────────
-
-    iconTheme: const IconThemeData(
-      color: AppColors.darkGrey,
-    ),
+    iconTheme: const IconThemeData(color: AppColors.darkGrey),
 
     // ─────────────────────────────────────────────
     // Elevated Buttons
     // ─────────────────────────────────────────────
-
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
@@ -67,68 +63,48 @@ class AppTheme {
 
         elevation: 0,
 
-        textStyle: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
+        textStyle: StyleText().button.copyWith(fontSize: 16),
 
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     ),
 
     // ─────────────────────────────────────────────
     // Outlined Buttons
     // ─────────────────────────────────────────────
-
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.primary,
 
-        side: const BorderSide(
-          color: AppColors.primary,
-        ),
+        side: const BorderSide(color: AppColors.primary),
 
         minimumSize: const Size(double.infinity, 52),
 
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
 
-        textStyle: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
+        textStyle: StyleText().link.copyWith(fontSize: 16),
       ),
     ),
 
     // ─────────────────────────────────────────────
     // Text Buttons
     // ─────────────────────────────────────────────
-
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: AppColors.primary,
 
-        textStyle: const TextStyle(
-          fontWeight: FontWeight.w600,
-        ),
+        textStyle: StyleText().link,
       ),
     ),
 
     // ─────────────────────────────────────────────
     // Input Fields
     // ─────────────────────────────────────────────
-
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: AppColors.lightBackground,
 
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 16,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
 
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -142,50 +118,36 @@ class AppTheme {
 
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(
-          color: AppColors.primary,
-          width: 1.5,
-        ),
+        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
       ),
 
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(
-          color: AppColors.error,
-        ),
+        borderSide: const BorderSide(color: AppColors.error),
       ),
 
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(
-          color: AppColors.error,
-          width: 1.5,
-        ),
+        borderSide: const BorderSide(color: AppColors.error, width: 1.5),
       ),
 
-      hintStyle: const TextStyle(
-        color: AppColors.grey,
-      ),
+      hintStyle: StyleText().desc,
     ),
 
     // ─────────────────────────────────────────────
     // Cards
     // ─────────────────────────────────────────────
-
     cardTheme: CardThemeData(
       color: AppColors.white,
       elevation: 0,
       margin: EdgeInsets.zero,
 
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
 
     // ─────────────────────────────────────────────
     // Divider
     // ─────────────────────────────────────────────
-
     dividerTheme: const DividerThemeData(
       color: AppColors.lightBackground,
       thickness: 1,
@@ -194,7 +156,6 @@ class AppTheme {
     // ─────────────────────────────────────────────
     // Checkbox
     // ─────────────────────────────────────────────
-
     checkboxTheme: CheckboxThemeData(
       fillColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
@@ -208,7 +169,6 @@ class AppTheme {
     // ─────────────────────────────────────────────
     // Switch
     // ─────────────────────────────────────────────
-
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
@@ -230,6 +190,7 @@ class AppTheme {
     brightness: Brightness.dark,
 
     fontFamily: 'ABeeZee',
+    textTheme: StyleText(isDark: true).materialTextTheme,
 
     primaryColor: AppColors.primary,
 
@@ -255,7 +216,6 @@ class AppTheme {
     // ─────────────────────────────────────────────
     // AppBar
     // ─────────────────────────────────────────────
-
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.darkBackground,
       foregroundColor: AppColors.white,
@@ -266,15 +226,11 @@ class AppTheme {
     // ─────────────────────────────────────────────
     // Icons
     // ─────────────────────────────────────────────
-
-    iconTheme: const IconThemeData(
-      color: AppColors.grey,
-    ),
+    iconTheme: const IconThemeData(color: AppColors.grey),
 
     // ─────────────────────────────────────────────
     // Elevated Buttons
     // ─────────────────────────────────────────────
-
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
@@ -284,49 +240,37 @@ class AppTheme {
 
         elevation: 0,
 
-        textStyle: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
+        textStyle: StyleText(isDark: true).button.copyWith(fontSize: 16),
 
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     ),
 
     // ─────────────────────────────────────────────
     // Outlined Buttons
     // ─────────────────────────────────────────────
-
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.primary,
 
-        side: const BorderSide(
-          color: AppColors.primary,
-        ),
+        side: const BorderSide(color: AppColors.primary),
 
         minimumSize: const Size(double.infinity, 52),
 
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        textStyle: StyleText(isDark: true).link.copyWith(fontSize: 16),
+
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     ),
 
     // ─────────────────────────────────────────────
     // Input Fields
     // ─────────────────────────────────────────────
-
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: const Color(0xFF1E293B),
 
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 16,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
 
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -340,35 +284,26 @@ class AppTheme {
 
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(
-          color: AppColors.primary,
-          width: 1.5,
-        ),
+        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
       ),
 
-      hintStyle: const TextStyle(
-        color: AppColors.grey,
-      ),
+      hintStyle: StyleText(isDark: true).desc,
     ),
 
     // ─────────────────────────────────────────────
     // Cards
     // ─────────────────────────────────────────────
-
     cardTheme: CardThemeData(
       color: const Color(0xFF1E293B),
       elevation: 0,
       margin: EdgeInsets.zero,
 
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
 
     // ─────────────────────────────────────────────
     // Divider
     // ─────────────────────────────────────────────
-
     dividerTheme: const DividerThemeData(
       color: Color(0xFF334155),
       thickness: 1,

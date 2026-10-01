@@ -9,6 +9,7 @@ import 'package:petitpotopro/features/auth/domain/entities/otp_contact.dart';
 import 'package:petitpotopro/features/auth/domain/entities/register_data.dart';
 import 'package:petitpotopro/features/auth/presentation/cubit/register_cubit.dart';
 import 'package:petitpotopro/features/auth/presentation/cubit/register_state.dart';
+import 'package:petitpotopro/features/auth/presentation/widgets/auth_ui.dart';
 
 /// Étape 3 : formulaire d'inscription.
 /// Le contact déjà vérifié (téléphone OU email) est affiché verrouillé ;
@@ -95,16 +96,16 @@ class _RegisterFormStepState extends State<RegisterFormStep> {
     final email = _email.text.trim();
 
     context.read<RegisterCubit>().submit(
-          RegisterData(
-            firstname: _firstname.text.trim(),
-            lastname: _lastname.text.trim(),
-            phone: Validators.normalizePhone(_phone.text),
-            email: email.isEmpty ? null : email,
-            country: _country.text.trim(),
-            gender: _gender,
-            password: _password.text,
-          ),
-        );
+      RegisterData(
+        firstname: _firstname.text.trim(),
+        lastname: _lastname.text.trim(),
+        phone: Validators.normalizePhone(_phone.text),
+        email: email.isEmpty ? null : email,
+        country: _country.text.trim(),
+        gender: _gender,
+        password: _password.text,
+      ),
+    );
   }
 
   Widget _verifiedIcon() =>
@@ -118,11 +119,14 @@ class _RegisterFormStepState extends State<RegisterFormStep> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 24),
-        Text('Vos informations', style: style.title),
-        const SizedBox(height: 8),
-        Text('Dernière étape avant de créer votre compte.', style: style.desc),
-        const SizedBox(height: 24),
-        const SizedBox(height: 24),
+        const AuthHeader(
+          icon: Icons.badge_outlined,
+          title: 'Vos informations',
+          subtitle: 'Dernière étape avant de créer votre compte.',
+        ),
+        const SizedBox(height: 28),
+
+        const AuthSectionLabel('Identité'),
         CustomTextField(
           controller: _firstname,
           hintText: 'Prénom',
@@ -137,6 +141,25 @@ class _RegisterFormStepState extends State<RegisterFormStep> {
           prefixIcon: const Icon(Icons.person_outline),
         ),
         const SizedBox(height: 16),
+        Text('Sexe (facultatif)', style: style.caption),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
+          child: SegmentedButton<Gender>(
+            emptySelectionAllowed: true,
+            showSelectedIcon: false,
+            segments: const [
+              ButtonSegment(value: Gender.male, label: Text('Homme')),
+              ButtonSegment(value: Gender.female, label: Text('Femme')),
+            ],
+            selected: {if (_gender != null) _gender!},
+            onSelectionChanged: (s) =>
+                setState(() => _gender = s.isEmpty ? null : s.first),
+          ),
+        ),
+
+        const SizedBox(height: 16),
+        const AuthSectionLabel('Contact'),
         CustomTextField(
           controller: _phone,
           hintText: 'Téléphone (avec indicatif)',
@@ -148,7 +171,9 @@ class _RegisterFormStepState extends State<RegisterFormStep> {
         const SizedBox(height: 16),
         CustomTextField(
           controller: _email,
-          hintText: _contact.isEmail ? 'Adresse email' : 'Adresse email (facultatif)',
+          hintText: _contact.isEmail
+              ? 'Adresse email'
+              : 'Adresse email (facultatif)',
           keyboardType: TextInputType.emailAddress,
           enabled: !_contact.isEmail,
           prefixIcon: const Icon(Icons.email_outlined),
@@ -161,33 +186,18 @@ class _RegisterFormStepState extends State<RegisterFormStep> {
           textCapitalization: TextCapitalization.words,
           prefixIcon: const Icon(Icons.flag_outlined),
         ),
+
         const SizedBox(height: 16),
-        Text('Sexe (facultatif)', style: style.caption),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          children: [
-            ChoiceChip(
-              label: const Text('Homme'),
-              selected: _gender == Gender.male,
-              onSelected: (on) =>
-                  setState(() => _gender = on ? Gender.male : null),
-            ),
-            ChoiceChip(
-              label: const Text('Femme'),
-              selected: _gender == Gender.female,
-              onSelected: (on) =>
-                  setState(() => _gender = on ? Gender.female : null),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
+        const AuthSectionLabel('Sécurité'),
         CustomTextField(
           controller: _password,
           hintText: 'Mot de passe',
           obscureText: _obscure,
           prefixIcon: const Icon(Icons.lock_outline),
           suffixIcon: IconButton(
+            tooltip: _obscure
+                ? 'Afficher le mot de passe'
+                : 'Masquer le mot de passe',
             icon: Icon(
               _obscure
                   ? Icons.visibility_outlined
@@ -196,6 +206,7 @@ class _RegisterFormStepState extends State<RegisterFormStep> {
             onPressed: () => setState(() => _obscure = !_obscure),
           ),
         ),
+        _PasswordStrength(controller: _password),
         const SizedBox(height: 16),
         CustomTextField(
           controller: _confirm,
@@ -203,10 +214,8 @@ class _RegisterFormStepState extends State<RegisterFormStep> {
           obscureText: _obscure,
           prefixIcon: const Icon(Icons.lock_outline),
         ),
-        if (_error != null) ...[
-          const SizedBox(height: 12),
-          Text(_error!, style: style.caption.copyWith(color: AppColors.error)),
-        ],
+
+        AuthErrorBanner(message: _error),
         const SizedBox(height: 24),
         BlocSelector<RegisterCubit, RegisterState, bool>(
           selector: (state) => state.isLoading,
@@ -214,8 +223,68 @@ class _RegisterFormStepState extends State<RegisterFormStep> {
               ? const LoadingButton()
               : CustomButton(text: 'Créer mon compte', onPressed: _submit),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 32),
       ],
+    );
+  }
+}
+
+/// Indicateur visuel de robustesse. Purement informatif : la validation
+/// reste celle de [Validators.password].
+class _PasswordStrength extends StatelessWidget {
+  const _PasswordStrength({required this.controller});
+
+  final TextEditingController controller;
+
+  int _score(String value) {
+    var score = 0;
+    if (value.length >= 8) score++;
+    if (RegExp(r'[a-z]').hasMatch(value) && RegExp(r'[A-Z]').hasMatch(value)) {
+      score++;
+    }
+    if (RegExp(r'\d').hasMatch(value)) score++;
+    return score;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: controller,
+      builder: (context, value, __) {
+        if (value.text.isEmpty) return const SizedBox.shrink();
+
+        final score = _score(value.text);
+        final (label, color) = switch (score) {
+          <= 1 => ('Faible', AppColors.error),
+          2 => ('Moyen', Colors.orange),
+          _ => ('Fort', AppColors.success),
+        };
+
+        return Padding(
+          padding: const EdgeInsets.only(top: 10, left: 2),
+          child: Row(
+            children: [
+              for (var i = 0; i < 3; i++) ...[
+                Expanded(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: i < (score == 0 ? 1 : score)
+                          ? color
+                          : color.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                if (i < 2) const SizedBox(width: 6),
+              ],
+              const SizedBox(width: 12),
+              Text(label, style: StyleText().caption.copyWith(color: color)),
+            ],
+          ),
+        );
+      },
     );
   }
 }

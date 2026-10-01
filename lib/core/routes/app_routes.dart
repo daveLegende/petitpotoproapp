@@ -10,7 +10,9 @@ import 'package:petitpotopro/features/auth/presentation/pages/register_page.dart
 import 'package:petitpotopro/features/home/home.dart';
 import 'package:petitpotopro/features/onboard/page/onboard.dart';
 import 'package:petitpotopro/features/splash/splash.dart';
+import 'package:petitpotopro/features/tournoi/domain/entities/tournoi_entity.dart';
 import 'package:petitpotopro/features/tournoi/presentation/pages/tournoi_screen.dart';
+import 'package:petitpotopro/features/tournoi/presentation/pages/tournament_transition_screen.dart';
 
 class AppRouter {
   static final GlobalKey<NavigatorState> navigatorKey =
@@ -24,6 +26,7 @@ class AppRouter {
     RegisterPage.route,
     HomeScreen.route,
     NavigationWidget.route,
+    TournamentTransitionScreen.route,
     TournoiScreen.route,
   };
 
@@ -44,12 +47,21 @@ class AppRouter {
       final isAuthenticated = _auth.state.isAuthenticated;
 
       if (!isAuthenticated && !_publicPaths.contains(location)) {
-        return LoginPage.route;
+        return Uri(
+          path: LoginPage.route,
+          queryParameters: {'redirect': state.uri.toString()},
+        ).toString();
       }
       if (isAuthenticated &&
           (location == LoginPage.route ||
               location == RegisterPage.route ||
               location == OnboardingScreen.route)) {
+        final destination = state.uri.queryParameters['redirect'];
+        if (destination != null &&
+            destination.startsWith('/') &&
+            !destination.startsWith('//')) {
+          return destination;
+        }
         return HomeScreen.route;
       }
       return null;
@@ -78,11 +90,30 @@ class AppRouter {
       GoRoute(
         path: NavigationWidget.route,
         builder: (context, state) {
-          final tournoiId = state.extra;
-          if (tournoiId is! String || tournoiId.isEmpty) {
+          final extraTournamentId = state.extra;
+          final tournoiId = extraTournamentId is String
+              ? extraTournamentId
+              : state.uri.queryParameters['tournoiId'];
+          if (tournoiId == null || tournoiId.isEmpty) {
             return const TournoiScreen();
           }
-          return NavigationWidget(tournoiId: tournoiId);
+          final initialTab = int.tryParse(
+            state.uri.queryParameters['tab'] ?? '',
+          );
+          return NavigationWidget(
+            tournoiId: tournoiId,
+            initialTab: initialTab ?? 0,
+          );
+        },
+      ),
+      GoRoute(
+        path: TournamentTransitionScreen.route,
+        builder: (context, state) {
+          final tournament = state.extra;
+          if (tournament is! TournoiEntity) {
+            return const TournoiScreen();
+          }
+          return TournamentTransitionScreen(tournament: tournament);
         },
       ),
       GoRoute(

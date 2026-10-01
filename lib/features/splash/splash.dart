@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:petitpotopro/core/configs/theme/app_colors.dart';
+import 'package:petitpotopro/core/di/service_locator.dart';
+import 'package:petitpotopro/core/storage/secure_storage.dart';
 import 'package:petitpotopro/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:petitpotopro/features/auth/presentation/bloc/auth_event.dart';
 import 'package:petitpotopro/features/auth/presentation/bloc/auth_state.dart';
@@ -38,9 +40,9 @@ class _SplashScreenState extends State<SplashScreen> {
     await minDelay;
 
     if (!mounted) return;
-    context.go(
-      bloc.state.isAuthenticated ? HomeScreen.route : OnboardingScreen.route,
-    );
+    final hasSeenOnboarding = await sl<SecureStorage>().hasSeenOnboarding();
+    if (!mounted) return;
+    context.go(hasSeenOnboarding ? HomeScreen.route : OnboardingScreen.route);
   }
 
   @override

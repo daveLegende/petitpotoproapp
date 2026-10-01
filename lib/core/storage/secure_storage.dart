@@ -6,6 +6,7 @@ class SecureStorage {
   static const String accessTokenKey = 'access_token';
   static const String refreshTokenKey = 'refresh_token';
   static const String userKey = 'cached_user';
+  static const String onboardingSeenKey = 'onboarding_seen';
 
   Future<void> saveAccessToken(String token) =>
       _storage.write(key: accessTokenKey, value: token);
@@ -22,6 +23,12 @@ class SecureStorage {
       _storage.write(key: userKey, value: json);
 
   Future<String?> getUser() => _storage.read(key: userKey);
+
+  Future<bool> hasSeenOnboarding() async =>
+      await _storage.read(key: onboardingSeenKey) == 'true';
+
+  Future<void> markOnboardingSeen() =>
+      _storage.write(key: onboardingSeenKey, value: 'true');
 
   Future<void> clear() => _storage.deleteAll();
 }

@@ -1,4 +1,3 @@
-
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -6,14 +5,16 @@ import 'package:go_router/go_router.dart';
 import 'package:petitpotopro/common/helpers/constant.dart';
 import 'package:petitpotopro/common/helpers/style.dart';
 import 'package:petitpotopro/core/configs/theme/app_colors.dart';
+import 'package:petitpotopro/core/di/service_locator.dart';
+import 'package:petitpotopro/core/storage/secure_storage.dart';
+import 'package:petitpotopro/features/home/home.dart';
 import 'package:petitpotopro/features/onboard/model/onboard.dart';
 import 'package:petitpotopro/features/onboard/widgets/dot.dart';
-import 'package:petitpotopro/features/tournoi/presentation/pages/tournoi_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   static const route = '/onboarding';
 
-  const OnboardingScreen({super.key,});
+  const OnboardingScreen({super.key});
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -32,6 +33,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeOutCubic,
     );
+  }
+
+  Future<void> _finish() async {
+    await sl<SecureStorage>().markOnboardingSeen();
+    if (mounted) context.go(HomeScreen.route);
   }
 
   @override
@@ -65,12 +71,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                 ),
                 child: const Center(
-                  child: Icon(
-                    Icons.sports_soccer,
-                    size: 96,
-                    color: mwhite,
-                  ),
+                  child: Icon(Icons.sports_soccer, size: 96, color: mwhite),
                 ),
+              ),
+            ),
+          ),
+
+          Positioned(
+            top: 0,
+            right: 20,
+            child: SafeArea(
+              child: TextButton(
+                onPressed: _finish,
+                child: const Text('Passer'),
               ),
             ),
           ),
@@ -156,11 +169,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   Dots(count: items.length, index: _index),
                                   const Spacer(),
                                   ElevatedButton(
-                                    onPressed: () {
-                                        _isLast
-                                          ? context.go(TournoiScreen.route)
-                                          : _goTo(_index + 1);
-                                    },
+                                    onPressed: _isLast
+                                        ? _finish
+                                        : () => _goTo(_index + 1),
                                     style: ElevatedButton.styleFrom(
                                       minimumSize: const Size(140, 52),
                                       backgroundColor: AppColors.secondary,

@@ -1,0 +1,61 @@
+# CONTEXTE
+Tu es un expert Flutter/Dart. Je développe l'app mobile "Petitpoto.pro", une application multi-tournois (football) : consultation des matchs, achat de tickets, paris (coupons).
+Stack : Flutter, Clean Architecture, BLoC/Cubit. Backend NestJS + PostgreSQL (déjà existant).
+
+# OBJECTIF
+Génère l'UI complète (screens + widgets réutilisables + cubits + routing) décrite ci-dessous. Le code doit être prêt à l'emploi, organisé par feature (presentation/domain/data), avec des données mockées pour le moment (repositories abstraits + implémentation mock).
+
+# FLUX GLOBAL
+Splash → Onboarding → Accueil (liste des tournois) → clic sur un tournoi → MainNavigationPage (BottomNavigationBar, 4 onglets) 
+
+# 1. SplashScreen
+Logo animé (fade/scale), vérifie : onboarding déjà vu ? user connecté ? → redirige vers Onboarding (1ère fois) ou Accueil.
+
+# 2. OnboardingScreen
+PageView de 3 slides (illustration, titre, description), indicateur de pages, boutons "Passer" et "Suivant/Commencer". Sauvegarde le flag "onboarding_seen" en local.
+
+# 3. HomeScreen (liste des tournois)
+- En-tête : "Bienvenue sur Petitpoto.pro" + sous-titre "Retrouvez vos tournois favoris ici".
+- SearchBar : filtre les tournois en temps réel (debounce 300 ms) avec état vide "Aucun tournoi trouvé".
+- Swiper de publicités (carousel auto-play, indicateurs, widget AdBanner réutilisable, données mockées).
+- Liste des tournois actifs de l'année en cours (TournamentCard : image/logo, nom, dates, statut, lieu).
+- États : loading (skeleton/shimmer), erreur (retry), vide.
+- Clic sur un tournoi → MainNavigationPage(tournamentId).
+
+# 4. MainNavigationPage (BottomNavigationBar, 4 items)
+Home | Tickets | Paris | Espace tournoi
+Utiliser IndexedStack pour conserver l'état des onglets. Le tournoi sélectionné est fourni à tous les onglets.
+
+## 4.1 Onglet Home (du tournoi)
+- En-tête : "Bienvenue dans {nomTournoi}" ; si l'user est connecté, ajouter son nom ("Bienvenue {nomUser} dans {nomTournoi}"), sinon rien de plus.
+- Section "Matchs en cours" : liste verticale de MatchCard (équipes, logos, score live, minute, badge LIVE).
+- Si aucun match en cours : afficher les 2 prochains matchs à venir (section "Prochains matchs").
+- Bouton "Voir plus" → CalendarMatchesScreen avec TabBar "À venir" / "Terminés".
+
+## 4.2 Onglet Tickets
+- Si non connecté : écran AuthRequiredView (icône, message "Pour acheter des tickets, connectez-vous à votre compte ou créez-en un", bouton "Se connecter" → LoginScreen).
+- Si connecté : historique des tickets avec filtres/chips : Actifs, Utilisés, Expirés (TicketCard : match, date, place/type, QR code, statut coloré).
+- Écran de détail ticket avec QR code agrandi.
+
+## 4.3 Onglet Paris
+- Si non connecté : même AuthRequiredView (message adapté : "Pour effectuer des paris, connectez-vous…").
+- Si connecté : TabBar 2 onglets :
+  - "Coupons simples" : filtre (chips) En cours / Gagnés / Perdus → liste de CouponCard (match, pronostic, cote, mise, gain potentiel, statut).
+  - "Coupons tournoi" : mêmes filtres En cours / Gagnés / Perdus → CouponCard adaptée (pari sur vainqueur du tournoi, meilleur buteur, etc.).
+
+## 4.4 Onglet Espace tournoi
+- En-tête avec le nom du tournoi.
+- Liste de ListTile (icône + titre + chevron) menant chacun à un écran :
+  1. Infos du tournoi
+  2. Poules (classement par groupe : J, G, N, P, Diff, Pts)
+  3. Meilleur buteur (classement joueurs)
+  4. Meilleur joueur
+  5. Meilleure équipe
+  6. Calendrier des matchs (par date)
+  7. Calendrier complet du tournoi : tableau des affiches à élimination directe (bracket) façon Coupe du monde / Ligue des champions (huitièmes → quarts → demies → finale), scrollable horizontalement/verticalement, avec CustomPainter ou widgets pour les connecteurs.
+
+# RÈGLES TECHNIQUES
+- Thème centralisé (Material 3, light/dark, couleurs primaires à définir dans un fichier theme).
+- Widgets réutilisables dans core/widgets : AuthRequiredView, EmptyView, ErrorView, LoadingShimmer, StatusBadge.
+- Entities et models : Tournament, Match, Team, Ticket, Coupon, Player, Group, User.
+- Code null-safe, commenté brièvement, responsive (petits écrans inclus).

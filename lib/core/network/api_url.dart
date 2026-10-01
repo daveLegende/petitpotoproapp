@@ -16,10 +16,10 @@ class ApiUrl {
   static const String currentUser = '$users/current';
   static const String searchUsers = '$users/search';
   static const String updateUser = '$users/update';
-  static const String userTickets = '$users/tickets';
-  static const String userCoupons = '$users/coupons';
+  // static const String userTickets = '$users/tickets';
+  // static const String userCoupons = '$users/coupons';
   static const String userParis = '$users/paris';
-  static const String userTournoiCoupons = '$users/tournoi-coupon';
+  // static const String userTournoiCoupons = '$users/tournoi-coupon';
   static const String deleteUserBet = '$users/bet/delete';
   static const String deleteUserTicket = '$users/ticket/delete';
 
